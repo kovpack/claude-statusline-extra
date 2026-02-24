@@ -1,0 +1,23 @@
+claude-usage-statusline-install
+  b1505ec3b90b1b36 26,68-72,87-88,90-92,98-102
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.4",
+  "base_commit_sha": "099833923db0380f9f2e67e12f145d5844616802",
+  "prompts": {
+    "b1505ec3b90b1b36": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcb01b0e-48ee-4730-865e-c865cfcbcb5a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 17,
+      "total_deletions": 2,
+      "accepted_lines": 17,
+      "overriden_lines": 0
+    }
+  }
+}
