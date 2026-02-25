@@ -67,6 +67,12 @@ CACHE_MAX_AGE=60
 refresh_usage() {
   # Atomic lock via mkdir to prevent concurrent fetches
   LOCK="${CACHE}.lock"
+  LOCK="${CACHE}.lock"
+  # Remove stale lock from a previous crash (older than 120s)
+  if [ -d "$LOCK" ]; then
+    LOCK_AGE=$(( $(date +%s) - $(stat -f %m "$LOCK" 2>/dev/null || echo 0) ))
+    [ "$LOCK_AGE" -gt 120 ] && rmdir "$LOCK" 2>/dev/null
+  fi
   if ! mkdir "$LOCK" 2>/dev/null; then return; fi
   trap 'rmdir "$LOCK" 2>/dev/null' RETURN
 
