@@ -159,9 +159,9 @@ fmt_reset() {
 
 USAGE=""
 if [ -f "$CACHE" ]; then
-  five_hour_pct=$(jq -r '.five_hour_pct // empty' "$CACHE" 2>/dev/null) || true
-  seven_day_pct=$(jq -r '.seven_day_pct // empty' "$CACHE" 2>/dev/null) || true
-  seven_day_reset=$(jq -r '.seven_day_reset // empty' "$CACHE" 2>/dev/null) || true
+  IFS=$'\t' read -r five_hour_pct seven_day_pct seven_day_reset < <(
+    jq -r '[.five_hour_pct // "", .seven_day_pct // "", .seven_day_reset // ""] | @tsv' "$CACHE" 2>/dev/null
+  )
 
   if [ -n "$five_hour_pct" ]; then
     USAGE=" | $(usage_emoji "$five_hour_pct") 5h: ${five_hour_pct}%"
