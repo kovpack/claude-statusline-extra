@@ -106,15 +106,19 @@ if [ -f "$CACHE" ]; then
     jq -r '[.five_hour_pct // "", .seven_day_pct // "", .seven_day_reset // ""] | @tsv' "$CACHE" 2>/dev/null
   )
 
+  BOLD=$'\033[1m'
+  RESET=$'\033[0m'
   if [ -n "$five_hour_pct" ]; then
-    USAGE=" | $(usage_emoji "$five_hour_pct") 5h: ${five_hour_pct}%"
+    USAGE=" | $(usage_emoji "$five_hour_pct") 5h: ${BOLD}${five_hour_pct}%${RESET}"
   fi
   if [ -n "$seven_day_pct" ]; then
     RESET_FMT=$(fmt_reset "${seven_day_reset:-}")
     RESET_PART=""
     [ -n "$RESET_FMT" ] && RESET_PART=" (${RESET_FMT})"
-    USAGE="${USAGE} $(usage_emoji "$seven_day_pct") 7d: ${seven_day_pct}%${RESET_PART}"
+    SEP=""
+    [ -n "$USAGE" ] && SEP=" |"
+    USAGE="${USAGE}${SEP} $(usage_emoji "$seven_day_pct") weekly: ${BOLD}${seven_day_pct}%${RESET}${RESET_PART}"
   fi
 fi
 
-echo "[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}% | ${IN_K}k in / ${OUT_K}k out${USAGE}"
+echo "[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}%${USAGE} | ${IN_K}k in / ${OUT_K}k out"

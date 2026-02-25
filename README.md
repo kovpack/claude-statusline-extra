@@ -9,6 +9,7 @@ A status line extension for [Claude Code](https://docs.anthropic.com/en/docs/cla
 Shows: model name, session cost, duration, context window usage, token counts, 5-hour and 7-day API usage with color indicators (🟢 < 50%, 🟡 50-80%, 🔴 > 80%) and next reset time.
 
 Usage data is fetched from the Anthropic API in the background every 60 seconds and cached locally.
+
 **Note** Claude Code usage API is a private beta and may stop working.
 
 ## Requirements
