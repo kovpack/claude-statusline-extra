@@ -1,0 +1,23 @@
+statusline.sh
+  b1505ec3b90b1b36 105-106,112-122
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "0d65aebae852b5b4c0eaf2a788f411838bb1b17f",
+  "prompts": {
+    "b1505ec3b90b1b36": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "bcb01b0e-48ee-4730-865e-c865cfcbcb5a",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 32,
+      "total_deletions": 4,
+      "accepted_lines": 32,
+      "overriden_lines": 0
+    }
+  }
+}
