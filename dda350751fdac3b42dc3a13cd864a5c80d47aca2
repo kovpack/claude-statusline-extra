@@ -1,0 +1,23 @@
+statusline.sh
+  e33cc3d788cb220b 95-103,133-140,180,205,235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "dda350751fdac3b42dc3a13cd864a5c80d47aca2",
+  "prompts": {
+    "e33cc3d788cb220b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b78ff833-3fd1-4d6a-b9db-dc7d7c26ea4e",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 23,
+      "total_deletions": 4,
+      "accepted_lines": 20,
+      "overriden_lines": 0
+    }
+  }
+}
