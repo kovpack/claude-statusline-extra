@@ -1,62 +1,5 @@
 #!/bin/bash
-# Claude Code Usage Status Line — Installer
-#
-# Shows session info and 5-hour / 7-day usage percentages in the Claude Code
-# status line. Refreshes usage data from the Anthropic API every 60s in the
-# background, triggered by the status line itself (no daemon needed).
-#
-# Requirements: macOS, jq, curl, Claude Code (logged in at least once)
-#
-# Usage:
-#   chmod +x claude-usage-statusline-install
-#   ./claude-usage-statusline-install          # install
-#   ./claude-usage-statusline-install uninstall # remove everything
-
-set -euo pipefail
-
-STATUSLINE_SCRIPT="$HOME/.claude/statusline.sh"
-SETTINGS_FILE="$HOME/.claude/settings.json"
-CACHE_FILE="$HOME/.claude/usage_cache.json"
-
-# ── Uninstall ──────────────────────────────────────────────────────
-
-if [ "${1:-}" = "uninstall" ]; then
-  echo "Uninstalling Claude usage status line..."
-  rm -f "$STATUSLINE_SCRIPT" "$CACHE_FILE"
-  rmdir "${CACHE_FILE}.lock" 2>/dev/null || true
-  if [ -f "$SETTINGS_FILE" ]; then
-    UPDATED=$(jq 'del(.statusLine)' "$SETTINGS_FILE")
-    echo "$UPDATED" > "$SETTINGS_FILE"
-    echo "Removed statusLine from ~/.claude/settings.json"
-  fi
-  echo "Done."
-  exit 0
-fi
-
-# ── Preflight checks ──────────────────────────────────────────────
-
-if [ "$(uname)" != "Darwin" ]; then
-  echo "Error: This script is macOS-only (uses Keychain)." >&2
-  exit 1
-fi
-
-if ! command -v jq &>/dev/null; then
-  echo "Error: jq is required. Install with: brew install jq" >&2
-  exit 1
-fi
-
-if ! security find-generic-password -s "Claude Code-credentials" -w &>/dev/null; then
-  echo "Error: No Claude Code credentials found in Keychain." >&2
-  echo "Make sure Claude Code is installed and you've logged in at least once." >&2
-  exit 1
-fi
-
-# ── Write the status line script ──────────────────────────────────
-
-mkdir -p "$(dirname "$STATUSLINE_SCRIPT")"
-
-cat > "$STATUSLINE_SCRIPT" << 'SL_EOF'
-#!/bin/bash
+umask 077
 input=$(cat)
 
 CACHE="$HOME/.claude/usage_cache.json"
@@ -66,7 +9,6 @@ CACHE_MAX_AGE=60
 
 refresh_usage() {
   # Atomic lock via mkdir to prevent concurrent fetches
-  LOCK="${CACHE}.lock"
   LOCK="${CACHE}.lock"
   # Remove stale lock from a previous crash (older than 120s)
   if [ -d "$LOCK" ]; then
@@ -95,6 +37,7 @@ refresh_usage() {
 
   # Atomic write: write to temp file then mv to prevent partial reads
   TMP_CACHE=$(mktemp "${CACHE}.XXXXXX")
+  chmod 600 "$TMP_CACHE"
   if echo "$BODY" | jq -c '{
     five_hour_pct: (if .five_hour.utilization then (.five_hour.utilization * 10 | round / 10) else null end),
     five_hour_reset: (.five_hour.resets_at // null | if . then split(".")[0] | split("+")[0] | gsub("T"; " ") else null end),
@@ -175,38 +118,3 @@ if [ -f "$CACHE" ]; then
 fi
 
 echo "[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}% | ${IN_K}k in / ${OUT_K}k out${USAGE}"
-SL_EOF
-chmod +x "$STATUSLINE_SCRIPT"
-echo "Wrote $STATUSLINE_SCRIPT"
-
-# ── Configure Claude Code settings ────────────────────────────────
-
-if [ -f "$SETTINGS_FILE" ]; then
-  if jq -e '.statusLine' "$SETTINGS_FILE" >/dev/null 2>&1; then
-    echo ""
-    echo "Note: ~/.claude/settings.json already has a statusLine entry."
-    echo "Make sure it points to: ~/.claude/statusline.sh"
-  else
-    UPDATED=$(jq '. + {"statusLine": {"type": "command", "command": "~/.claude/statusline.sh"}}' "$SETTINGS_FILE")
-    echo "$UPDATED" > "$SETTINGS_FILE"
-    echo "Updated ~/.claude/settings.json with statusLine config"
-  fi
-else
-  cat > "$SETTINGS_FILE" << 'SETTINGS_EOF'
-{
-  "statusLine": {
-    "type": "command",
-    "command": "~/.claude/statusline.sh"
-  }
-}
-SETTINGS_EOF
-  echo "Created ~/.claude/settings.json with statusLine config"
-fi
-
-# ── Done ──────────────────────────────────────────────────────────
-
-echo ""
-echo "Done! Restart Claude Code to see usage in the status line."
-echo "The status bar will show:  [Model] \$cost | time | ctx: N% | Nk in / Nk out | 5h: N% 7d: N%"
-echo ""
-echo "To uninstall:  $0 uninstall"
