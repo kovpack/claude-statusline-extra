@@ -1,0 +1,88 @@
+statusline.sh
+  2a84cc6f1a3d4588 109-110,112,118-120,124
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "65d4be934109f591bd3f44f83f1e2bdb38b3c968",
+  "prompts": {
+    "2a84cc6f1a3d4588": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "866accae-7056-4727-9b76-d3ff5bf5dc74",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Artur Termenji <atermenji@gmail.com>",
+      "messages": [
+        {
+          "type": "user",
+          "text": "let's update UX in statusline.sh\n* move (in/out) tokens to the end of statusline\n* make usage percentage in bold, add separator between 5h and 7d limits\n* rename 7d to weekly",
+          "timestamp": "2026-02-25T10:51:11.561Z"
+        },
+        {
+          "type": "assistant",
+          "text": "\n\nLet me start by reading the current statusline script to understand its structure.",
+          "timestamp": "2026-02-25T10:51:14.317Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/statusline.sh"
+          },
+          "timestamp": "2026-02-25T10:51:14.639Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now I can see the current format. Let me make the three requested changes:\n\n1. Move `(in/out)` tokens to the end of statusline\n2. Make usage percentage bold, add separator between 5h and 7d limits\n3. Rename `7d` to `weekly`",
+          "timestamp": "2026-02-25T10:51:17.670Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/statusline.sh",
+            "new_string": "  BOLD=$'\\033[1m'\n  RESET=$'\\033[0m'\n  if [ -n \"$five_hour_pct\" ]; then\n    USAGE=\" | $(usage_emoji \"$five_hour_pct\") 5h: ${BOLD}${five_hour_pct}%${RESET}\"\n  fi\n  if [ -n \"$seven_day_pct\" ]; then\n    RESET_FMT=$(fmt_reset \"${seven_day_reset:-}\")\n    RESET_PART=\"\"\n    [ -n \"$RESET_FMT\" ] && RESET_PART=\" (${RESET_FMT})\"\n    SEP=\"\"\n    [ -n \"$USAGE\" ] && SEP=\" |\"\n    USAGE=\"${USAGE}${SEP} $(usage_emoji \"$seven_day_pct\") weekly: ${BOLD}${seven_day_pct}%${RESET}${RESET_PART}\"\n  fi",
+            "old_string": "  if [ -n \"$five_hour_pct\" ]; then\n    USAGE=\" | $(usage_emoji \"$five_hour_pct\") 5h: ${five_hour_pct}%\"\n  fi\n  if [ -n \"$seven_day_pct\" ]; then\n    RESET_FMT=$(fmt_reset \"${seven_day_reset:-}\")\n    RESET_PART=\"\"\n    [ -n \"$RESET_FMT\" ] && RESET_PART=\" (${RESET_FMT})\"\n    USAGE=\"${USAGE} $(usage_emoji \"$seven_day_pct\") 7d: ${seven_day_pct}%${RESET_PART}\"\n  fi",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:51:21.713Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/statusline.sh",
+            "new_string": "echo \"[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}%${USAGE} | ${IN_K}k in / ${OUT_K}k out\"",
+            "old_string": "echo \"[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}% | ${IN_K}k in / ${OUT_K}k out${USAGE}\"",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:53:11.183Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Let me verify the final result:",
+          "timestamp": "2026-02-25T10:57:09.418Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/statusline.sh",
+            "offset": 103
+          },
+          "timestamp": "2026-02-25T10:57:10.033Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Here's a summary of the changes:\n\n1. **Tokens moved to end** — `${IN_K}k in / ${OUT_K}k out` is now the last segment of the statusline\n2. **Bold percentages + separator** — Usage percentages are wrapped in `\\033[1m...\\033[0m` (bold), and a `|` separator is added between the 5h and weekly limits\n3. **Renamed 7d to weekly** — `7d:` label is now `weekly:`\n\nBefore: `[Model] $0.12 | 5m 30s | ctx: 45% | 120k in / 15k out | 🟢 5h: 23% 🟢 7d: 10%`\n\nAfter: `[Model] $0.12 | 5m 30s | ctx: 45% | 🟢 5h: **23%** | 🟢 weekly: **10%** | 120k in / 15k out`",
+          "timestamp": "2026-02-25T10:57:15.745Z"
+        }
+      ],
+      "total_additions": 7,
+      "total_deletions": 3,
+      "accepted_lines": 7,
+      "overriden_lines": 0
+    }
+  }
+}

@@ -1,0 +1,477 @@
+README.md
+  9f84b01b4e7f94f9 1-11,13-49,52-60
+install.sh
+  9f84b01b4e7f94f9 1-154
+uninstall.sh
+  9f84b01b4e7f94f9 1-13
+statusline.sh
+  9f84b01b4e7f94f9 1-120
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "2e3f5b64cc6b33ba02621c76c64e4f0d830c799c",
+  "prompts": {
+    "9f84b01b4e7f94f9": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2c02c3ab-f924-4011-9595-0e04cf9462dc",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Artur Termenji <atermenji@gmail.com>",
+      "messages": [
+        {
+          "type": "user",
+          "text": "I want to refactor the status line script. currently it's a single bash script that installs another one through heredoc. I want to \n* extract statusline.sh into a separate script\n* installation should install statusline.sh from a separate script with a file\n* add README.md with installation instructions\n* add checksum for statusline.sh and checksum validation on installation. this needs research on how similar CLI tools are distributed and installed from github\nmake me an agent team that should\n* tech architect to research small opensource CLI tools installation approach\n* a security expert that reviews and adds needed checks for checksum and validation of script identity\n* an engineer to refactor installation",
+          "timestamp": "2026-02-25T09:45:33.814Z"
+        },
+        {
+          "type": "assistant",
+          "text": "The user wants to refactor their status line script project. Let me first understand the current codebase, then spawn multiple agents to work on this in parallel.\n\nLet me first look at the current state of the project to understand what we're working with.",
+          "timestamp": "2026-02-25T09:45:37.397Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Let me first understand the current codebase, then I'll launch the agent team.",
+          "timestamp": "2026-02-25T09:45:38.170Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "ls -la /Users/atermenji/Coding/claude-statusline-extra",
+            "description": "List project files"
+          },
+          "timestamp": "2026-02-25T09:45:38.878Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/.gitignore"
+          },
+          "timestamp": "2026-02-25T09:45:39.303Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/claude-usage-statusline-install"
+          },
+          "timestamp": "2026-02-25T09:45:41.604Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now I have full context. Let me launch the three-agent team in parallel.",
+          "timestamp": "2026-02-25T09:45:44.379Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Task",
+          "input": {
+            "description": "Research CLI install patterns",
+            "name": "tech-architect",
+            "prompt": "You are a tech architect researching how small open-source CLI tools distributed on GitHub handle installation via `curl | bash` or similar one-liner patterns, with integrity verification.\n\nResearch the following (use WebSearch and WebFetch):\n\n1. **Common installation patterns** for small GitHub-hosted shell scripts/CLI tools. Look at real examples like:\n   - How `starship.rs` installer works (curl from GitHub raw)\n   - How `nvm` (Node Version Manager) handles install\n   - How `rustup` installer works\n   - How `homebrew` installer works\n   - Any other notable small CLI tools\n\n2. **Checksum/integrity verification patterns**:\n   - How do these tools verify the downloaded script hasn't been tampered with?\n   - Do they use SHA256 checksums? GPG signatures? Both?\n   - Where is the checksum stored (separate file? embedded in installer? GitHub release asset?)\n   - How does `shasum -a 256` or `sha256sum` work cross-platform (macOS vs Linux)?\n\n3. **GitHub raw content URLs**: What's the standard pattern for referencing files from a GitHub repo in install scripts? (e.g., `https://raw.githubusercontent.com/user/repo/branch/file`)\n\n4. **Best practices** for a simple project (just 2 files: installer + statusline script):\n   - Should checksums be in a separate CHECKSUMS file or embedded?\n   - Should the installer download the statusline script from GitHub raw, or should it be bundled?\n   - What's the simplest approach that still provides real security?\n\nReturn a structured recommendation with:\n- Recommended installation flow (step by step)\n- Recommended file structure for the repo\n- Recommended checksum approach\n- Example install one-liner for the README\n- Any gotchas or pitfalls to watch for",
+            "run_in_background": true,
+            "subagent_type": "general-purpose"
+          },
+          "timestamp": "2026-02-25T09:45:56.985Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Task",
+          "input": {
+            "description": "Security review for install flow",
+            "name": "security-expert",
+            "prompt": "You are a security expert reviewing a shell script installation flow for a Claude Code status line tool.\n\nThe current project is at `/Users/atermenji/Coding/claude-statusline-extra`. It has a single file `claude-usage-statusline-install` that is a bash installer which writes a statusline script via heredoc to `~/.claude/statusline.sh`.\n\nThe refactoring plan is:\n- Extract `statusline.sh` into its own file in the repo\n- The installer downloads `statusline.sh` from GitHub (raw URL) and places it at `~/.claude/statusline.sh`\n- Add SHA256 checksum verification\n\n**Your task**: Research and provide concrete security recommendations for:\n\n1. **Checksum verification in the installer**:\n   - The installer should verify the downloaded `statusline.sh` against a known SHA256 checksum\n   - Where should the checksum be stored? Options: embedded in installer, separate CHECKSUMS file, or both\n   - Provide the exact bash code for:\n     - Computing SHA256 on macOS (`shasum -a 256`) vs Linux (`sha256sum`)\n     - Comparing checksums safely (constant-time comparison not needed for file checksums, but avoid common pitfalls)\n   - Should the checksum be pinned to a specific git tag/commit?\n\n2. **Download security**:\n   - HTTPS is mandatory - verify the curl/wget commands use HTTPS\n   - Should we verify the TLS certificate? (curl does by default)\n   - Redirect following: should we limit with `--max-redirs`?\n   - Timeout settings for downloads\n\n3. **Script execution safety**:\n   - `set -euo pipefail` in both scripts\n   - Temp file handling (mktemp, atomic moves)\n   - File permissions on installed script\n\n4. **Threat model for this specific tool**:\n   - The statusline.sh script reads Keychain credentials and calls the Anthropic API\n   - What are the risks of a compromised statusline.sh?\n   - What mitigations make sense for a small open-source project?\n\nProvide:\n- A concrete checksum verification bash function that works on macOS (primary target)\n- Recommended curl flags for secure downloading\n- Any other security hardening for the installer\n- A brief threat model summary",
+            "run_in_background": true,
+            "subagent_type": "general-purpose"
+          },
+          "timestamp": "2026-02-25T09:46:10.090Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Task",
+          "input": {
+            "description": "Plan installer refactoring",
+            "name": "engineer-planner",
+            "prompt": "You are a software engineer planning the refactoring of a Claude Code status line installer.\n\nThe project is at `/Users/atermenji/Coding/claude-statusline-extra`.\n\nCurrently there's one file: `claude-usage-statusline-install` — a bash script that:\n1. Does preflight checks (macOS, jq, Keychain credentials)\n2. Writes `~/.claude/statusline.sh` via a heredoc (lines 58-178)\n3. Configures `~/.claude/settings.json` with statusLine config\n4. Has an uninstall mode\n\nThe refactoring goals:\n1. Extract the heredoc content (lines 59-177 of `claude-usage-statusline-install`) into a separate `statusline.sh` file in the repo\n2. The installer should download `statusline.sh` from GitHub raw URL and install it to `~/.claude/statusline.sh`\n3. Add SHA256 checksum verification in the installer\n4. Add a `README.md` with installation instructions\n5. Add a `CHECKSUMS` file (or embed checksum in installer)\n\nRead the current installer script and plan:\n- The exact file structure after refactoring\n- What goes in each file\n- The flow of the new installer (download → verify checksum → install → configure settings)\n- How the checksum file should work (needs to be updated when statusline.sh changes)\n- The uninstall flow (should remain the same)\n- A one-liner install command for the README\n\nDo NOT write any code. Just create a detailed plan of what needs to change and why.",
+            "run_in_background": true,
+            "subagent_type": "Plan"
+          },
+          "timestamp": "2026-02-25T09:46:18.024Z"
+        },
+        {
+          "type": "assistant",
+          "text": "All three agents are running in parallel:\n\n1. **Tech Architect** — researching how tools like starship, nvm, rustup handle installation and checksum verification from GitHub\n2. **Security Expert** — designing the checksum verification flow, secure download patterns, and threat model for this specific tool (since it touches Keychain credentials)\n3. **Engineer Planner** — reading the current code and planning the exact file structure and refactoring steps\n\nI'll synthesize their findings once they report back and present you with a unified plan before writing any code.",
+          "timestamp": "2026-02-25T09:46:23.169Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "ToolSearch",
+          "input": {
+            "max_results": 1,
+            "query": "select:TaskOutput"
+          },
+          "timestamp": "2026-02-25T09:46:23.839Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "TaskOutput",
+          "input": {
+            "block": true,
+            "task_id": "a5de7bb25084522c2",
+            "timeout": 120000
+          },
+          "timestamp": "2026-02-25T09:46:26.956Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "TaskOutput",
+          "input": {
+            "block": true,
+            "task_id": "aca2ee2b0a603dc4d",
+            "timeout": 120000
+          },
+          "timestamp": "2026-02-25T09:46:27.469Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "TaskOutput",
+          "input": {
+            "block": true,
+            "task_id": "ad453e719126c6123",
+            "timeout": 120000
+          },
+          "timestamp": "2026-02-25T09:46:28.070Z"
+        },
+        {
+          "type": "assistant",
+          "text": "All three agents have completed. Let me synthesize their findings into a unified plan for the user.\n\nKey consensus points across all three agents:\n\n1. **File structure**: Extract `statusline.sh`, add `SHA256SUMS`, modify installer, add `README.md`\n2. **Checksum approach**: \n   - Tech architect recommends Tier 1 (no checksum, HTTPS trust) or Tier 2 (SHA256SUMS file)\n   - Security expert recommends embedding SHA256 in the installer itself (stronger)\n   - Engineer planner recommends downloading SHA256SUMS from the same repo\n   - Since the user explicitly asked for checksum, I'll go with a hybrid: embedded in installer + SHA256SUMS file for developer workflow\n\n\n3. **Security hardening**: I need to wrap the main logic to prevent partial-download execution, tighten file permissions to `chmod 700`, set `umask 077` in statusline.sh, use strict curl flags with HTTPS enforcement and connection limits, and remove the duplicate `LOCK` variable declaration.\n4. **Local fallback**: The engineer suggested checking if statusline.sh already exists locally before downloading—a nice optimization.\n5. **Uninstall**: Need to update the uninstall message to account for curl|bash usage patterns.\n\nNow I'm ready to present the synthesized plan.",
+          "timestamp": "2026-02-25T09:48:11.812Z"
+        },
+        {
+          "type": "assistant",
+          "text": "All three agents have reported back. Here's the synthesized plan:\n\n---\n\n## Unified Plan\n\n### Key decisions from the team\n\n**Tech Architect** researched starship, nvm, rustup, Homebrew, oh-my-zsh — all use HTTPS trust for the installer itself, with SHA256 checksums for downloaded artifacts. Recommended the `main()` wrapper pattern (prevents partial execution on truncated downloads) and pinning to git tags.\n\n**Security Expert** flagged that `statusline.sh` reads Keychain credentials and makes API calls — a compromised script could exfiltrate OAuth tokens. Recommended:\n- Embed SHA256 in the installer (the trust anchor) rather than downloading checksums from the same origin\n- `chmod 700` (not `chmod +x`) since the script touches credentials\n- `umask 077` in statusline.sh for cache files\n- Secure curl: `--proto '=https' --tlsv1.2 --fail --max-redirs 3 --max-time 30`\n- Fix duplicate `LOCK` line\n\n**Engineer** planned the exact file structure, flows, and local-fallback (if statusline.sh exists next to installer, use it instead of downloading).\n\n### Final file structure\n\n```\nstatusline.sh                    (NEW - extracted from heredoc)\ninstall.sh                       (RENAMED + MODIFIED installer)\nSHA256SUMS                       (NEW - for developer workflow)\nREADME.md                        (NEW)\n```\n\n### Key design choices\n1. **Rename** `claude-usage-statusline-install` → `install.sh` (convention, cleaner URLs)\n2. **Embed** SHA256 hash in installer (security expert's recommendation — single trust anchor)\n3. **Also keep** `SHA256SUMS` file for developer workflow and paranoid users\n4. **Local fallback** — if `statusline.sh` exists next to installer, use it directly (supports `git clone` + `./install.sh`)\n5. **`main()` wrapper** — all three agents agreed this is the #1 safety improvement\n\nWant me to proceed with the implementation?",
+          "timestamp": "2026-02-25T09:48:21.108Z"
+        },
+        {
+          "type": "user",
+          "text": "yes, but don't do local fallback (#4)",
+          "timestamp": "2026-02-25T09:51:57.840Z"
+        },
+        {
+          "type": "assistant",
+          "text": "The user wants me to proceed with the implementation but skip the local fallback feature. Let me implement:\n\n1. Extract `statusline.sh` from the heredoc\n2. Create `install.sh` (renamed from `claude-usage-statusline-install`) with download + verify logic\n3. Create `SHA256SUMS`\n4. Create `README.md`\n5. Remove the old `claude-usage-statusline-install`\n\nLet me start by creating the files. I'll do them in order:\n1. First: `statusline.sh` (extract lines 59-177 from current installer, with security fixes)\n\n\n2. Now I'm extracting the statusline.sh content and applying security fixes like removing the duplicate LOCK line and adding umask 077 at the top, then I'll compute its SHA256 hash and write the install.sh script with embedded verification logic.",
+          "timestamp": "2026-02-25T09:52:05.394Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Let me start by creating the files. First, `statusline.sh` with the security fixes applied.",
+          "timestamp": "2026-02-25T09:52:05.474Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Write",
+          "input": {
+            "content": "#!/bin/bash\numask 077\ninput=$(cat)\n\nCACHE=\"$HOME/.claude/usage_cache.json\"\nCACHE_MAX_AGE=60\n\n# ── Background usage fetch (non-blocking) ────────────────────────\n\nrefresh_usage() {\n  # Atomic lock via mkdir to prevent concurrent fetches\n  LOCK=\"${CACHE}.lock\"\n  # Remove stale lock from a previous crash (older than 120s)\n  if [ -d \"$LOCK\" ]; then\n    LOCK_AGE=$(( $(date +%s) - $(stat -f %m \"$LOCK\" 2>/dev/null || echo 0) ))\n    [ \"$LOCK_AGE\" -gt 120 ] && rmdir \"$LOCK\" 2>/dev/null\n  fi\n  if ! mkdir \"$LOCK\" 2>/dev/null; then return; fi\n  trap 'rmdir \"$LOCK\" 2>/dev/null' RETURN\n\n  RAW=$(security find-generic-password -s \"Claude Code-credentials\" -w 2>/dev/null) || return\n\n  # Use jq for robust JSON parsing instead of fragile sed regex\n  TOKEN=$(echo \"$RAW\" | jq -r '(.claudeAiOauth.accessToken // .accessToken) // empty' 2>/dev/null)\n  [ -z \"$TOKEN\" ] && return\n\n  # Pass auth header via stdin (--config -) so the token doesn't appear in ps output\n  BODY=$(printf 'header = \"Authorization: Bearer %s\"\\n' \"$TOKEN\" | \\\n    curl -s --max-time 10 \\\n      -H \"Accept: application/json\" \\\n      -H \"anthropic-beta: oauth-2025-04-20\" \\\n      --config - \\\n      \"https://api.anthropic.com/api/oauth/usage\") || return\n\n  # Validate response contains expected data before caching\n  if ! echo \"$BODY\" | jq -e '.five_hour' >/dev/null 2>&1; then return; fi\n\n  # Atomic write: write to temp file then mv to prevent partial reads\n  TMP_CACHE=$(mktemp \"${CACHE}.XXXXXX\")\n  chmod 600 \"$TMP_CACHE\"\n  if echo \"$BODY\" | jq -c '{\n    five_hour_pct: (if .five_hour.utilization then (.five_hour.utilization * 10 | round / 10) else null end),\n    five_hour_reset: (.five_hour.resets_at // null | if . then split(\".\")[0] | split(\"+\")[0] | gsub(\"T\"; \" \") else null end),\n    seven_day_pct: (if .seven_day.utilization then (.seven_day.utilization * 10 | round / 10) else null end),\n    seven_day_reset: (.seven_day.resets_at // null | if . then split(\".\")[0] | split(\"+\")[0] | gsub(\"T\"; \" \") else null end),\n    fetched_at: (now | floor)\n  }' > \"$TMP_CACHE\" 2>/dev/null; then\n    mv \"$TMP_CACHE\" \"$CACHE\"\n  else\n    rm -f \"$TMP_CACHE\"\n  fi\n}\n\n# Refresh cache in background if stale or missing\nif [ ! -f \"$CACHE\" ] || [ $(($(date +%s) - $(stat -f %m \"$CACHE\"))) -gt $CACHE_MAX_AGE ]; then\n  refresh_usage &\nfi\n\n# ── Format session info from Claude Code JSON ────────────────────\n\nIFS=$'\\t' read -r MODEL COST DURATION_MS USED IN_K OUT_K < <(\n  echo \"$input\" | jq -r '[\n    .model.display_name,\n    (.cost.total_cost_usd // 0 | tostring),\n    (.cost.total_duration_ms // 0 | tostring),\n    (.context_window.used_percentage // 0 | tostring),\n    ((.context_window.total_input_tokens // 0) / 1000 | floor | tostring),\n    ((.context_window.total_output_tokens // 0) / 1000 | floor | tostring)\n  ] | @tsv'\n)\n\nCOST_FMT=$(printf '$%.2f' \"$COST\")\n\nDURATION_SEC=$((DURATION_MS / 1000))\nHOURS=$((DURATION_SEC / 3600))\nMINS=$(( (DURATION_SEC % 3600) / 60 ))\nSECS=$((DURATION_SEC % 60))\nif [ \"$HOURS\" -gt 0 ]; then\n  TIME_FMT=\"${HOURS}h ${MINS}m\"\nelse\n  TIME_FMT=\"${MINS}m ${SECS}s\"\nfi\n\n# ── Format usage from cache ──────────────────────────────────────\n\nusage_emoji() {\n  local pct=\"${1%.*}\"\n  pct=\"${pct:-0}\"\n  if [ \"$pct\" -ge 80 ]; then   echo \"🔴\"\n  elif [ \"$pct\" -ge 50 ]; then echo \"🟡\"\n  else                          echo \"🟢\"\n  fi\n}\n\nfmt_reset() {\n  local reset_utc=\"$1\"\n  [ -z \"$reset_utc\" ] || [ \"$reset_utc\" = \"null\" ] && return\n  local epoch\n  epoch=$(date -juf \"%Y-%m-%d %H:%M:%S\" \"$reset_utc\" \"+%s\" 2>/dev/null) || return\n  date -jf \"%s\" \"$epoch\" \"+%a %-I%p\" 2>/dev/null | sed 's/AM/am/;s/PM/pm/'\n}\n\nUSAGE=\"\"\nif [ -f \"$CACHE\" ]; then\n  IFS=$'\\t' read -r five_hour_pct seven_day_pct seven_day_reset < <(\n    jq -r '[.five_hour_pct // \"\", .seven_day_pct // \"\", .seven_day_reset // \"\"] | @tsv' \"$CACHE\" 2>/dev/null\n  )\n\n  if [ -n \"$five_hour_pct\" ]; then\n    USAGE=\" | $(usage_emoji \"$five_hour_pct\") 5h: ${five_hour_pct}%\"\n  fi\n  if [ -n \"$seven_day_pct\" ]; then\n    RESET_FMT=$(fmt_reset \"${seven_day_reset:-}\")\n    RESET_PART=\"\"\n    [ -n \"$RESET_FMT\" ] && RESET_PART=\" (${RESET_FMT})\"\n    USAGE=\"${USAGE} $(usage_emoji \"$seven_day_pct\") 7d: ${seven_day_pct}%${RESET_PART}\"\n  fi\nfi\n\necho \"[$MODEL] $COST_FMT | $TIME_FMT | ctx: ${USED}% | ${IN_K}k in / ${OUT_K}k out${USAGE}\"\n",
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/statusline.sh"
+          },
+          "timestamp": "2026-02-25T09:52:36.477Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now compute the SHA256 and make it executable.",
+          "timestamp": "2026-02-25T09:52:55.807Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "chmod +x /Users/atermenji/Coding/claude-statusline-extra/statusline.sh && shasum -a 256 /Users/atermenji/Coding/claude-statusline-extra/statusline.sh",
+            "description": "Set executable and compute SHA256"
+          },
+          "timestamp": "2026-02-25T09:52:56.878Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now create the SHA256SUMS file and write `install.sh`.",
+          "timestamp": "2026-02-25T09:53:13.001Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Write",
+          "input": {
+            "content": "b4246f2f8cd964a4dc73083248de5647068a596c471f9f482a08f8271ac7ef41  statusline.sh\n",
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/SHA256SUMS"
+          },
+          "timestamp": "2026-02-25T09:53:13.914Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Write",
+          "input": {
+            "content": "#!/bin/bash\n# Claude Code Usage Status Line — Installer\n#\n# Shows session info and 5-hour / 7-day usage percentages in the Claude Code\n# status line. Refreshes usage data from the Anthropic API every 60s in the\n# background, triggered by the status line itself (no daemon needed).\n#\n# Requirements: macOS, jq, curl, Claude Code (logged in at least once)\n#\n# Usage:\n#   curl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash\n#   curl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash -s uninstall\n\nset -euo pipefail\n\nmain() {\n\nSTATUSLINE_SCRIPT=\"$HOME/.claude/statusline.sh\"\nSETTINGS_FILE=\"$HOME/.claude/settings.json\"\nCACHE_FILE=\"$HOME/.claude/usage_cache.json\"\n\n# ── Download configuration ─────────────────────────────────────────\nREPO_RAW_URL=\"https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master\"\nSTATUSLINE_URL=\"${REPO_RAW_URL}/statusline.sh\"\n# SHA256 of the statusline.sh this installer version expects.\n# Update this hash whenever statusline.sh changes:\n#   shasum -a 256 statusline.sh | cut -d ' ' -f 1\nEXPECTED_SHA256=\"b4246f2f8cd964a4dc73083248de5647068a596c471f9f482a08f8271ac7ef41\"\n\n# ── Uninstall ──────────────────────────────────────────────────────\n\nif [ \"${1:-}\" = \"uninstall\" ]; then\n  echo \"Uninstalling Claude usage status line...\"\n  rm -f \"$STATUSLINE_SCRIPT\" \"$CACHE_FILE\"\n  rmdir \"${CACHE_FILE}.lock\" 2>/dev/null || true\n  if [ -f \"$SETTINGS_FILE\" ]; then\n    UPDATED=$(jq 'del(.statusLine)' \"$SETTINGS_FILE\")\n    echo \"$UPDATED\" > \"$SETTINGS_FILE\"\n    echo \"Removed statusLine from ~/.claude/settings.json\"\n  fi\n  echo \"Done.\"\n  return 0\nfi\n\n# ── Preflight checks ──────────────────────────────────────────────\n\nif [ \"$(uname)\" != \"Darwin\" ]; then\n  echo \"Error: This script is macOS-only (uses Keychain).\" >&2\n  return 1\nfi\n\nfor cmd in jq curl; do\n  if ! command -v \"$cmd\" &>/dev/null; then\n    echo \"Error: $cmd is required. Install with: brew install $cmd\" >&2\n    return 1\n  fi\ndone\n\nif ! command -v shasum &>/dev/null; then\n  echo \"Error: shasum is required for checksum verification.\" >&2\n  return 1\nfi\n\nif ! security find-generic-password -s \"Claude Code-credentials\" -w &>/dev/null; then\n  echo \"Error: No Claude Code credentials found in Keychain.\" >&2\n  echo \"Make sure Claude Code is installed and you've logged in at least once.\" >&2\n  return 1\nfi\n\n# ── SHA256 helpers ─────────────────────────────────────────────────\n\ncompute_sha256() {\n  if command -v shasum &>/dev/null; then\n    shasum -a 256 \"$1\" | cut -d ' ' -f 1\n  elif command -v sha256sum &>/dev/null; then\n    sha256sum \"$1\" | cut -d ' ' -f 1\n  else\n    echo \"Error: No SHA256 tool found.\" >&2\n    return 1\n  fi\n}\n\nverify_checksum() {\n  local file=\"$1\"\n  local expected=\"$2\"\n  local actual\n  actual=$(compute_sha256 \"$file\") || return 1\n\n  if [ \"$actual\" != \"$expected\" ]; then\n    echo \"Error: SHA256 checksum mismatch!\" >&2\n    echo \"  Expected: $expected\" >&2\n    echo \"  Got:      $actual\" >&2\n    echo \"\" >&2\n    echo \"The downloaded statusline.sh does not match the expected version.\" >&2\n    echo \"This could indicate tampering or a version mismatch.\" >&2\n    return 1\n  fi\n}\n\n# ── Download and install statusline.sh ─────────────────────────────\n\nmkdir -p \"$(dirname \"$STATUSLINE_SCRIPT\")\"\n\nTMP_DOWNLOAD=$(mktemp \"${STATUSLINE_SCRIPT}.XXXXXX\")\ncleanup() { rm -f \"$TMP_DOWNLOAD\"; }\ntrap cleanup EXIT\n\necho \"Downloading statusline.sh...\"\n\nif ! curl \\\n  --proto '=https' --tlsv1.2 \\\n  --silent --show-error --fail \\\n  --location --max-redirs 3 \\\n  --max-time 30 --connect-timeout 10 \\\n  --retry 2 --retry-delay 1 \\\n  --output \"$TMP_DOWNLOAD\" \\\n  \"$STATUSLINE_URL\"; then\n  echo \"Error: Failed to download statusline.sh from:\" >&2\n  echo \"  $STATUSLINE_URL\" >&2\n  return 1\nfi\n\nif [ ! -s \"$TMP_DOWNLOAD\" ]; then\n  echo \"Error: Downloaded file is empty.\" >&2\n  return 1\nfi\n\nverify_checksum \"$TMP_DOWNLOAD\" \"$EXPECTED_SHA256\" || return 1\necho \"Checksum verified.\"\n\nmv \"$TMP_DOWNLOAD\" \"$STATUSLINE_SCRIPT\"\ntrap - EXIT\nchmod 700 \"$STATUSLINE_SCRIPT\"\necho \"Installed $STATUSLINE_SCRIPT\"\n\n# ── Configure Claude Code settings ────────────────────────────────\n\nif [ -f \"$SETTINGS_FILE\" ]; then\n  if jq -e '.statusLine' \"$SETTINGS_FILE\" >/dev/null 2>&1; then\n    echo \"\"\n    echo \"Note: ~/.claude/settings.json already has a statusLine entry.\"\n    echo \"Make sure it points to: ~/.claude/statusline.sh\"\n  else\n    UPDATED=$(jq '. + {\"statusLine\": {\"type\": \"command\", \"command\": \"~/.claude/statusline.sh\"}}' \"$SETTINGS_FILE\")\n    echo \"$UPDATED\" > \"$SETTINGS_FILE\"\n    echo \"Updated ~/.claude/settings.json with statusLine config\"\n  fi\nelse\n  cat > \"$SETTINGS_FILE\" << 'SETTINGS_EOF'\n{\n  \"statusLine\": {\n    \"type\": \"command\",\n    \"command\": \"~/.claude/statusline.sh\"\n  }\n}\nSETTINGS_EOF\n  echo \"Created ~/.claude/settings.json with statusLine config\"\nfi\n\n# ── Done ──────────────────────────────────────────────────────────\n\necho \"\"\necho \"Done! Restart Claude Code to see usage in the status line.\"\necho \"The status bar will show:  [Model] \\$cost | time | ctx: N% | Nk in / Nk out | 5h: N% 7d: N%\"\necho \"\"\necho \"To uninstall:\"\necho \"  curl -fsSL ${REPO_RAW_URL}/install.sh | bash -s uninstall\"\n\n}\n\nmain \"$@\"\n",
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh"
+          },
+          "timestamp": "2026-02-25T09:53:39.924Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now create the README and make install.sh executable. Also remove the old installer.",
+          "timestamp": "2026-02-25T09:55:31.919Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "chmod +x /Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "description": "Make install.sh executable"
+          },
+          "timestamp": "2026-02-25T09:55:32.574Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Write",
+          "input": {
+            "content": "# Claude Code Usage Status Line\n\nA status line extension for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that shows session info and API usage percentages.\n\n```\n[Claude 4 Opus] $0.42 | 12m 30s | ctx: 45% | 32k in / 8k out | 🟢 5h: 12.3% 🟢 7d: 8.1% (Fri 3pm)\n```\n\nShows: model name, session cost, duration, context window usage, token counts, 5-hour and 7-day API usage with color indicators (🟢 < 50%, 🟡 50-80%, 🔴 > 80%) and next reset time.\n\nUsage data is fetched from the Anthropic API in the background every 60 seconds and cached locally.\n\n## Requirements\n\n- **macOS** (uses Keychain for credential access)\n- **jq** (`brew install jq`)\n- **curl**\n- **Claude Code** (logged in at least once so credentials exist in Keychain)\n\n## Install\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash\n```\n\nOr clone and run locally:\n\n```bash\ngit clone https://github.com/atermenji/claude-statusline-extra.git\ncd claude-statusline-extra\n./install.sh\n```\n\nThe installer will:\n1. Download `statusline.sh` and verify its SHA256 checksum\n2. Install it to `~/.claude/statusline.sh`\n3. Configure `~/.claude/settings.json` with the statusLine entry\n\nRestart Claude Code after installation.\n\n## Uninstall\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash -s uninstall\n```\n\nOr if cloned:\n\n```bash\n./install.sh uninstall\n```\n\nThis removes `~/.claude/statusline.sh`, the usage cache, and the `statusLine` entry from `~/.claude/settings.json`.\n\n## What gets installed\n\n| File | Purpose |\n|------|---------|\n| `~/.claude/statusline.sh` | The status line script invoked by Claude Code |\n| `~/.claude/settings.json` | Updated with `statusLine` configuration (existing settings preserved) |\n| `~/.claude/usage_cache.json` | Created at runtime — cached API usage data |\n\n## Security\n\nThe installer verifies the downloaded `statusline.sh` against an embedded SHA256 checksum before installation. Downloads use HTTPS with TLS 1.2+ enforced.\n\nThe `statusline.sh` script reads Claude Code OAuth credentials from the macOS Keychain to query the Anthropic usage API. The installed script is set to `chmod 700` (owner-only access) and uses `umask 077` to restrict cache file permissions. Auth tokens are passed via `curl --config -` to avoid appearing in process listings.\n\nFor manual verification before running:\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/statusline.sh -o statusline.sh\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/SHA256SUMS -o SHA256SUMS\nshasum -a 256 -c SHA256SUMS\n```\n\n## Updating the checksum\n\nWhen modifying `statusline.sh`, regenerate the checksum files:\n\n```bash\nshasum -a 256 statusline.sh > SHA256SUMS\nshasum -a 256 statusline.sh | cut -d ' ' -f 1\n# Update EXPECTED_SHA256 in install.sh with the hash above\n```\n",
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/README.md"
+          },
+          "timestamp": "2026-02-25T09:55:47.632Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now remove the old installer and verify the final state.",
+          "timestamp": "2026-02-25T10:00:30.364Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "rm /Users/atermenji/Coding/claude-statusline-extra/claude-usage-statusline-install",
+            "description": "Remove old installer"
+          },
+          "timestamp": "2026-02-25T10:00:31.312Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "ls -la && echo \"---\" && echo \"SHA256SUMS:\" && cat SHA256SUMS && echo \"---\" && echo \"Verify checksum matches:\" && shasum -a 256 statusline.sh",
+            "description": "Verify final state and checksum match"
+          },
+          "timestamp": "2026-02-25T10:00:40.376Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Everything checks out. Let me do a quick syntax check on both scripts.",
+          "timestamp": "2026-02-25T10:01:18.630Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "bash -n /Users/atermenji/Coding/claude-statusline-extra/install.sh && echo \"install.sh: OK\" && bash -n /Users/atermenji/Coding/claude-statusline-extra/statusline.sh && echo \"statusline.sh: OK\"",
+            "description": "Syntax check both scripts"
+          },
+          "timestamp": "2026-02-25T10:01:19.748Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Both scripts pass syntax checks. Here's a summary of what was done:\n\n### Files created/modified\n\n| File | Action | Description |\n|------|--------|-------------|\n| `statusline.sh` | **NEW** | Extracted from heredoc, added `umask 077`, `chmod 600` on temp cache, fixed duplicate `LOCK` line |\n| `install.sh` | **NEW** | Renamed installer with download+verify flow, `main()` wrapper, embedded SHA256 |\n| `SHA256SUMS` | **NEW** | Standard checksum file for developer workflow and manual verification |\n| `README.md` | **NEW** | Install/uninstall docs, security section, checksum update instructions |\n| `claude-usage-statusline-install` | **DELETED** | Replaced by `install.sh` |\n\n### Security hardening applied\n- **`main()` wrapper** — prevents partial execution if `curl | bash` download is truncated\n- **Embedded SHA256** — installer verifies downloaded script before installing\n- **`chmod 700`** — owner-only permissions on installed script (reads Keychain)\n- **`umask 077`** — restricts cache/temp file permissions in statusline.sh\n- **Secure curl flags** — `--proto '=https' --tlsv1.2 --fail --max-redirs 3 --max-time 30`\n- **Atomic install** — `mktemp` + verify + `mv` with `trap` cleanup",
+          "timestamp": "2026-02-25T10:01:36.478Z"
+        },
+        {
+          "type": "user",
+          "text": "update README for uninstall, we don't need to curl",
+          "timestamp": "2026-02-25T10:09:53.268Z"
+        },
+        {
+          "type": "assistant",
+          "text": "The user wants to simplify the uninstall instructions - instead of curling the installer again, just provide manual steps to remove the files.",
+          "timestamp": "2026-02-25T10:09:57.045Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/README.md",
+            "limit": 20,
+            "offset": 36
+          },
+          "timestamp": "2026-02-25T10:09:57.840Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/README.md",
+            "new_string": "## Uninstall\n\n```bash\nrm -f ~/.claude/statusline.sh ~/.claude/usage_cache.json\nrmdir ~/.claude/usage_cache.json.lock 2>/dev/null\njq 'del(.statusLine)' ~/.claude/settings.json > /tmp/settings.tmp && mv /tmp/settings.tmp ~/.claude/settings.json\n```",
+            "old_string": "## Uninstall\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash -s uninstall\n```\n\nOr if cloned:\n\n```bash\n./install.sh uninstall\n```\n\nThis removes `~/.claude/statusline.sh`, the usage cache, and the `statusLine` entry from `~/.claude/settings.json`.",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:10:02.603Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Done. Replaced the curl-based uninstall with direct cleanup commands.",
+          "timestamp": "2026-02-25T10:10:21.014Z"
+        },
+        {
+          "type": "user",
+          "text": "update uninstall to be a single bash command. update readme for that as well",
+          "timestamp": "2026-02-25T10:10:46.047Z"
+        },
+        {
+          "type": "assistant",
+          "text": "\n\nLet me check the current uninstall logic in install.sh.",
+          "timestamp": "2026-02-25T10:10:48.740Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "limit": 20,
+            "offset": 30
+          },
+          "timestamp": "2026-02-25T10:10:49.417Z"
+        },
+        {
+          "type": "assistant",
+          "text": "I'll create a standalone `uninstall.sh` script and update both `install.sh` and the README.",
+          "timestamp": "2026-02-25T10:10:52.156Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Write",
+          "input": {
+            "content": "#!/bin/bash\n# Claude Code Usage Status Line — Uninstaller\nset -euo pipefail\n\necho \"Uninstalling Claude usage status line...\"\nrm -f \"$HOME/.claude/statusline.sh\" \"$HOME/.claude/usage_cache.json\"\nrmdir \"$HOME/.claude/usage_cache.json.lock\" 2>/dev/null || true\nif [ -f \"$HOME/.claude/settings.json\" ]; then\n  UPDATED=$(jq 'del(.statusLine)' \"$HOME/.claude/settings.json\")\n  echo \"$UPDATED\" > \"$HOME/.claude/settings.json\"\n  echo \"Removed statusLine from ~/.claude/settings.json\"\nfi\necho \"Done.\"\n",
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/uninstall.sh"
+          },
+          "timestamp": "2026-02-25T10:10:54.321Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "chmod +x /Users/atermenji/Coding/claude-statusline-extra/uninstall.sh",
+            "description": "Make uninstall.sh executable"
+          },
+          "timestamp": "2026-02-25T10:11:01.236Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Now remove the uninstall block from `install.sh` and update the done message.",
+          "timestamp": "2026-02-25T10:11:06.968Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Read",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh"
+          },
+          "timestamp": "2026-02-25T10:11:07.406Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "new_string": "#   curl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/uninstall.sh | bash",
+            "old_string": "#   curl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/install.sh | bash -s uninstall",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:11:11.176Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "new_string": "# ── Preflight checks",
+            "old_string": "# ── Uninstall ──────────────────────────────────────────────────────\n\nif [ \"${1:-}\" = \"uninstall\" ]; then\n  echo \"Uninstalling Claude usage status line...\"\n  rm -f \"$STATUSLINE_SCRIPT\" \"$CACHE_FILE\"\n  rmdir \"${CACHE_FILE}.lock\" 2>/dev/null || true\n  if [ -f \"$SETTINGS_FILE\" ]; then\n    UPDATED=$(jq 'del(.statusLine)' \"$SETTINGS_FILE\")\n    echo \"$UPDATED\" > \"$SETTINGS_FILE\"\n    echo \"Removed statusLine from ~/.claude/settings.json\"\n  fi\n  echo \"Done.\"\n  return 0\nfi\n\n# ── Preflight checks",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:11:13.316Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "new_string": "echo \"To uninstall:\"\necho \"  curl -fsSL ${REPO_RAW_URL}/uninstall.sh | bash\"",
+            "old_string": "echo \"To uninstall:\"\necho \"  curl -fsSL ${REPO_RAW_URL}/install.sh | bash -s uninstall\"",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:11:14.651Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/README.md",
+            "new_string": "## Uninstall\n\n```bash\ncurl -fsSL https://raw.githubusercontent.com/atermenji/claude-statusline-extra/master/uninstall.sh | bash\n```\n\nOr if cloned:\n\n```bash\n./uninstall.sh\n```",
+            "old_string": "## Uninstall\n\n```bash\nrm -f ~/.claude/statusline.sh ~/.claude/usage_cache.json\nrmdir ~/.claude/usage_cache.json.lock 2>/dev/null\njq 'del(.statusLine)' ~/.claude/settings.json > /tmp/settings.tmp && mv /tmp/settings.tmp ~/.claude/settings.json\n```",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:11:16.486Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Also remove the now-unused `CACHE_FILE` variable from install.sh since uninstall was the only thing using it.",
+          "timestamp": "2026-02-25T10:11:27.763Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Edit",
+          "input": {
+            "file_path": "/Users/atermenji/Coding/claude-statusline-extra/install.sh",
+            "new_string": "STATUSLINE_SCRIPT=\"$HOME/.claude/statusline.sh\"\nSETTINGS_FILE=\"$HOME/.claude/settings.json\"",
+            "old_string": "STATUSLINE_SCRIPT=\"$HOME/.claude/statusline.sh\"\nSETTINGS_FILE=\"$HOME/.claude/settings.json\"\nCACHE_FILE=\"$HOME/.claude/usage_cache.json\"",
+            "replace_all": false
+          },
+          "timestamp": "2026-02-25T10:11:29.296Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Quick syntax check on all three scripts.",
+          "timestamp": "2026-02-25T10:11:36.786Z"
+        },
+        {
+          "type": "tool_use",
+          "name": "Bash",
+          "input": {
+            "command": "bash -n install.sh && echo \"install.sh: OK\" && bash -n uninstall.sh && echo \"uninstall.sh: OK\" && bash -n statusline.sh && echo \"statusline.sh: OK\"",
+            "description": "Syntax check all scripts"
+          },
+          "timestamp": "2026-02-25T10:11:38.022Z"
+        },
+        {
+          "type": "assistant",
+          "text": "Done. Extracted uninstall into its own `uninstall.sh` script, removed the uninstall block from `install.sh`, and updated the README with the one-liner `curl ... uninstall.sh | bash`.",
+          "timestamp": "2026-02-25T10:11:45.852Z"
+        },
+        {
+          "type": "user",
+          "text": "<local-command-caveat>Caveat: The messages below were generated by the user while running local commands. DO NOT respond to these messages or otherwise consider them in your response unless the user explicitly asks you to.</local-command-caveat>",
+          "timestamp": "2026-02-25T10:26:57.475Z"
+        },
+        {
+          "type": "user",
+          "text": "<command-name>/exit</command-name>\n            <command-message>exit</command-message>\n            <command-args></command-args>",
+          "timestamp": "2026-02-25T10:26:57.472Z"
+        },
+        {
+          "type": "user",
+          "text": "<local-command-stdout>See ya!</local-command-stdout>",
+          "timestamp": "2026-02-25T10:26:57.472Z"
+        }
+      ],
+      "total_additions": 402,
+      "total_deletions": 30,
+      "accepted_lines": 345,
+      "overriden_lines": 1
+    }
+  }
+}
