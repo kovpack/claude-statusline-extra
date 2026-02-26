@@ -1,0 +1,23 @@
+README.md
+  de56f22d70cffa5a 74-75
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "d5acb85619634d321d7cb464a3fc1552a9346cf4",
+  "prompts": {
+    "de56f22d70cffa5a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "2832d4ff-40b2-4449-9309-1ec574302dbd",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 0,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
