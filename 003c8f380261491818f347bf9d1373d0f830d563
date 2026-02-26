@@ -1,0 +1,23 @@
+statusline.sh
+  adf537ef671f6d57 72,267
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "003c8f380261491818f347bf9d1373d0f830d563",
+  "prompts": {
+    "adf537ef671f6d57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b834492e-d5a4-4ef1-8a94-313e89fa75f4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 2,
+      "total_deletions": 3,
+      "accepted_lines": 2,
+      "overriden_lines": 0
+    }
+  }
+}
