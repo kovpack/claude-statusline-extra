@@ -1,0 +1,25 @@
+statusline.sh
+  adf537ef671f6d57 85-86,91-93,100-102,108,112,126,142,147,149,155-159,164,168-170,175-177,182-184,189-191,196,198-199,213,217,222,224-225,228-229,233,237,242-244,277,279-285,287
+README.md
+  adf537ef671f6d57 48-113
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.1.5",
+  "base_commit_sha": "d0aa2f10723794eac3acedda57d9a421ab25eeb1",
+  "prompts": {
+    "adf537ef671f6d57": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "b834492e-d5a4-4ef1-8a94-313e89fa75f4",
+        "model": "claude-opus-4-6"
+      },
+      "human_author": "Anatoliy Yevpack <kovpack@gmail.com>",
+      "messages": [],
+      "total_additions": 123,
+      "total_deletions": 71,
+      "accepted_lines": 122,
+      "overriden_lines": 0
+    }
+  }
+}
