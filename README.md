@@ -71,6 +71,8 @@ Create `~/.claude/statusline.json` to customize which segments are shown and how
 | `label` | string | Custom label text (e.g. `"ctx"`, `"weekly"`) |
 | `reset` | boolean | Show reset countdown (5h/7d only) |
 
+**Note:** Color support varies across terminals and their configurations. Named colors (e.g. `red`, `cyan`) have the widest compatibility, 256-color codes (`0`–`255`) work in most modern terminals, and truecolor hex (`#RRGGBB`) requires a terminal with 24-bit color support. If colors don't appear as expected, try a different format to see what your terminal supports.
+
 ### Examples
 
 Minimal — just list segment names as strings to use defaults:
