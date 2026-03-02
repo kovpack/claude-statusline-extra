@@ -207,7 +207,6 @@ fmt_seg_5h() {
       reset_part=" ($(( remaining / 3600 ))h $(( (remaining % 3600) / 60 ))m)"
     fi
   fi
-  fi
   local emoji_part=""
   if [ "$do_emoji" = "true" ]; then
     usage_emoji "$five_hour_pct"; emoji_part="$REPLY "
