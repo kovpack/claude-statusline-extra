@@ -45,6 +45,74 @@ Restart Claude Code after installation.
 ./uninstall.sh
 ```
 
+## Configuration
+
+Create `~/.claude/statusline.json` to customize which segments are shown and how they look. If the file doesn't exist, all segments are shown with default settings.
+
+### Available segments
+
+| Name | Description |
+|------|-------------|
+| `model` | Active model name (e.g. `[Claude 4 Sonnet]`) |
+| `cost` | Session cost (e.g. `$1.23`) |
+| `time` | Session duration (e.g. `12m 34s`) |
+| `context` | Context window usage percentage |
+| `5h` | 5-hour API usage with reset countdown |
+| `7d` | 7-day API usage with reset day |
+| `tokens` | Token counts (e.g. `42k in / 18k out`) |
+
+### Segment options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `color` | string | Named: `red`, `green`, `yellow`, `blue`, `magenta`, `cyan`, `white`. 256-color: `0`-`255`. Truecolor: `#RRGGBB` |
+| `bold` | boolean | Bold text (`true` / `false`) |
+| `emoji` | string \| boolean | `true` = auto circle (5h/7d only), `false` = none, or any string e.g. `"💰"` |
+| `label` | string | Custom label text (e.g. `"ctx"`, `"weekly"`) |
+| `reset` | boolean | Show reset countdown (5h/7d only) |
+
+**Note:** Color support varies across terminals and their configurations. Named colors (e.g. `red`, `cyan`) have the widest compatibility, 256-color codes (`0`–`255`) work in most modern terminals, and truecolor hex (`#RRGGBB`) requires a terminal with 24-bit color support. If colors don't appear as expected, try a different format to see what your terminal supports.
+
+### Examples
+
+Minimal — just list segment names as strings to use defaults:
+
+```json
+{
+  "segments": ["model", "cost", "5h"]
+}
+```
+
+Customized — mix strings and objects:
+
+```json
+{
+  "segments": [
+    { "name": "model", "color": "cyan" },
+    { "name": "cost", "color": "green", "emoji": "💰" },
+    { "name": "context", "label": "ctx", "bold": true, "color": "#88aaff" },
+    { "name": "5h", "emoji": true, "bold": true, "reset": true },
+    { "name": "7d", "label": "weekly", "emoji": true, "bold": true, "reset": true, "color": 220 }
+  ]
+}
+```
+
+Full defaults (equivalent to no config file):
+
+```json
+{
+  "segments": [
+    "model",
+    "cost",
+    "time",
+    { "name": "context", "label": "ctx" },
+    { "name": "5h", "emoji": true, "bold": true, "reset": true },
+    { "name": "7d", "label": "weekly", "emoji": true, "bold": true, "reset": true },
+    "tokens"
+  ]
+}
+```
+
 ## Security
 
 The installer verifies the downloaded `statusline.sh` against an embedded SHA256 checksum before installation.
